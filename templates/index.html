@@ -17,14 +17,20 @@
         </span>
         <span class="brand-name">Cipher<span>Kavach</span></span>
       </a>
-      <div class="local-badge"><span class="status-dot"></span> Local processing</div>
+      <div class="local-badge"><span class="status-dot"></span> {{ "Hosted server processing" if hosted else "Local processing" }}</div>
     </header>
 
     <main>
       <section class="intro">
         <div class="eyebrow"><span></span> YOUR FILES, IN YOUR CONTROL</div>
         <h1>Security for every<br class="desktop-break"> <span>important file.</span></h1>
-        <p class="intro-copy">Encrypt and decrypt files with a password you control. Simple protection, right from your desktop.</p>
+        <p class="intro-copy">
+          {% if hosted %}
+          Files and passwords are sent over HTTPS to this hosted server for processing. Do not upload sensitive files unless you trust the host.
+          {% else %}
+          Encrypt and decrypt files with a password you control. Simple protection, right from your desktop.
+          {% endif %}
+        </p>
       </section>
 
       <section class="workspace" aria-label="File encryption workspace">
@@ -79,15 +85,23 @@
               <span class="spinner" aria-hidden="true"></span>
               <svg class="button-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <p class="upload-disclosure"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V4.8a2.5 2.5 0 0 1 5 0V7"/></svg> Files are sent to this local Python app for processing.</p>
+            <p class="upload-disclosure"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V4.8a2.5 2.5 0 0 1 5 0V7"/></svg>
+              {% if hosted %}Your file and password are sent over HTTPS to this server for processing.{% else %}Files are sent to this local Python app for processing.{% endif %}
+            </p>
           </form>
         </div>
 
         <aside class="info-column">
           <div class="info-card how-card">
             <div class="info-icon green-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4.5 5.8v5.4c0 4.4 3.1 8.4 7.5 10.4 4.4-2 7.5-6 7.5-10.4V5.8L12 3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12.1 2 2 4.2-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h2>Private by design</h2>
-            <p>The file is processed by the Python backend running on your computer. It is not encrypted in the browser or uploaded to a cloud vault.</p>
+            <h2>{{ "Hosted processing" if hosted else "Private by design" }}</h2>
+            <p>
+              {% if hosted %}
+              The file is processed on this hosting server, not in your browser. The app removes its temporary upload after processing. Review the host's privacy and retention policies before using this service.
+              {% else %}
+              The file is processed by the Python backend running on your computer. It is not encrypted in the browser or uploaded to a cloud vault.
+              {% endif %}
+            </p>
             <div class="feature-list">
               <div><span class="check">✓</span><span>Authenticated AES-GCM encryption</span></div>
               <div><span class="check">✓</span><span>Random salt and nonce per file</span></div>
@@ -103,7 +117,7 @@
       </section>
     </main>
 
-    <footer><span>© 2026 CipherKavach</span><span>Your files stay yours.</span></footer>
+    <footer><span>© 2026 CipherKavach</span><span>{{ "Hosted service; only use it if you trust the host." if hosted else "Your files stay yours." }}</span></footer>
   </div>
 </body>
 </html>

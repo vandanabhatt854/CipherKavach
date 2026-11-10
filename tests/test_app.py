@@ -44,6 +44,15 @@ class CipherKavachTests(unittest.TestCase):
         self.assertIn(b"CipherKavach", response.data)
         self.assertIn(b"Encrypt &amp; Download", response.data)
         self.assertIn(b"50 MB", response.data)
+        self.assertIn(b"Local processing", response.data)
+
+    def test_hosted_page_discloses_server_side_processing(self):
+        app = create_app({"TESTING": True, "HOSTED": True})
+        response = app.test_client().get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Hosted server processing", response.data)
+        self.assertIn(b"sent over HTTPS to this server", response.data)
+        self.assertIn(b"hosting server, not in your browser", response.data)
 
     def test_text_and_binary_round_trip_through_web(self):
         # The test fixture has a deliberately small upload limit, so use a second app here.

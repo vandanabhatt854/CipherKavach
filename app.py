@@ -33,6 +33,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config.from_mapping(
         MAX_FILE_SIZE=MAX_FILE_SIZE,
+        HOSTED=os.environ.get("CIPHERKAVACH_HOSTED") == "1",
         # Leave room for multipart headers, then enforce the exact file size below.
         MAX_CONTENT_LENGTH=MAX_FILE_SIZE + 128 * 1024,
         TEMP_DIR=None,
@@ -60,7 +61,11 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     @app.get("/")
     def index():
-        return render_template("index.html", max_file_size=app.config["MAX_FILE_SIZE"])
+        return render_template(
+            "index.html",
+            max_file_size=app.config["MAX_FILE_SIZE"],
+            hosted=app.config["HOSTED"],
+        )
 
     @app.post("/api/<action>")
     def process_file(action: str):
@@ -117,4 +122,3 @@ app = create_app()
 if __name__ == "__main__":
     # Loopback only; do not expose this development server on the network.
     app.run(host="127.0.0.1", port=int(os.environ.get("PORT", "5000")), debug=False)
-
