@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8f5">
+  <title>CipherKavach — Private file encryption</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body data-max-bytes="{{ max_file_size }}">
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="CipherKavach home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 44" fill="none"><path d="M20 2.8 4.5 8.5v11.2c0 9.1 6.4 17.3 15.5 21.5 9.1-4.2 15.5-12.4 15.5-21.5V8.5L20 2.8Z" fill="currentColor"/><path d="m13.5 21.6 4.2 4.1 9.1-9.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-name">Cipher<span>Kavach</span></span>
+      </a>
+      <div class="local-badge"><span class="status-dot"></span> Local processing</div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow"><span></span> YOUR FILES, IN YOUR CONTROL</div>
+        <h1>Security for every<br class="desktop-break"> <span>important file.</span></h1>
+        <p class="intro-copy">Encrypt and decrypt files with a password you control. Simple protection, right from your desktop.</p>
+      </section>
+
+      <section class="workspace" aria-label="File encryption workspace">
+        <div class="form-card">
+          <div class="tabs" role="tablist" aria-label="Choose an action">
+            <button class="tab active" id="encrypt-tab" type="button" role="tab" aria-selected="true" aria-controls="file-form" data-action="encrypt">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"/><path d="M7 8V5.7a3 3 0 0 1 6 0V8"/></svg>Encrypt File
+            </button>
+            <button class="tab" id="decrypt-tab" type="button" role="tab" aria-selected="false" aria-controls="file-form" data-action="decrypt">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"/><path d="M7 8V5.7a3 3 0 0 1 6 0"/></svg>Decrypt File
+            </button>
+          </div>
+
+          <form id="file-form" novalidate>
+            <input id="file-input" name="file" type="file" hidden>
+            <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Choose a file or drag one here">
+              <div class="upload-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="drop-title">Drop your file here</div>
+              <div class="drop-subtitle">or <button type="button" class="browse-button" id="browse-button">browse files</button></div>
+              <div class="file-limit">Any file type · Up to {{ (max_file_size / (1024 * 1024))|int }} MB</div>
+            </div>
+
+            <div class="selected-file" id="selected-file" hidden>
+              <div class="file-type-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3.8h7l5 5V20a.8.8 0 0 1-.8.8H6.8A.8.8 0 0 1 6 20V3.8Z" stroke="currentColor" stroke-width="1.6"/><path d="M13 4v5h5M9 14h6m-6 3h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+              <div class="file-details"><div id="file-name" class="file-name"></div><div id="file-size" class="file-size"></div></div>
+              <button type="button" class="remove-file" id="remove-file" aria-label="Remove selected file" title="Remove file">×</button>
+            </div>
+
+            <div class="credential-fields">
+              <label class="field-label" for="password" id="password-label">Create a password</label>
+              <div class="password-wrap">
+                <svg class="field-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="8.5" width="13" height="9" rx="2"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+                <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Enter a strong password" required>
+                <button class="show-password" type="button" data-toggle="password" aria-label="Show password">Show</button>
+              </div>
+              <div id="confirm-group" class="confirm-group">
+                <label class="field-label" for="confirm-password">Confirm password</label>
+                <div class="password-wrap">
+                  <svg class="field-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="8.5" width="13" height="9" rx="2"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+                  <input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Re-enter your password">
+                  <button class="show-password" type="button" data-toggle="confirm-password" aria-label="Show password confirmation">Show</button>
+                </div>
+              </div>
+              <p class="password-note" id="password-note">Choose a password you can remember. It cannot be recovered if lost.</p>
+            </div>
+
+            <div class="message" id="message" role="status" aria-live="polite" hidden></div>
+            <button class="submit-button" id="submit-button" type="submit">
+              <span class="button-label">Encrypt &amp; Download</span>
+              <span class="spinner" aria-hidden="true"></span>
+              <svg class="button-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="upload-disclosure"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V4.8a2.5 2.5 0 0 1 5 0V7"/></svg> Files are sent to this local Python app for processing.</p>
+          </form>
+        </div>
+
+        <aside class="info-column">
+          <div class="info-card how-card">
+            <div class="info-icon green-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4.5 5.8v5.4c0 4.4 3.1 8.4 7.5 10.4 4.4-2 7.5-6 7.5-10.4V5.8L12 3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12.1 2 2 4.2-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h2>Private by design</h2>
+            <p>The file is processed by the Python backend running on your computer. It is not encrypted in the browser or uploaded to a cloud vault.</p>
+            <div class="feature-list">
+              <div><span class="check">✓</span><span>Authenticated AES-GCM encryption</span></div>
+              <div><span class="check">✓</span><span>Random salt and nonce per file</span></div>
+              <div><span class="check">✓</span><span>Temporary uploads removed after processing</span></div>
+            </div>
+          </div>
+          <div class="info-card note-card">
+            <div class="note-heading"><span class="note-mark">i</span><h2>Keep your password safe</h2></div>
+            <p>CipherKavach does not store or recover passwords. If you lose yours, the encrypted file cannot be decrypted. Keep the original file until you have confirmed the download works.</p>
+          </div>
+          <div class="format-note"><span class="format-dot"></span> CipherKavach v1 format <span class="format-separator">·</span> 50 MB maximum</div>
+        </aside>
+      </section>
+    </main>
+
+    <footer><span>© 2026 CipherKavach</span><span>Your files stay yours.</span></footer>
+  </div>
+</body>
+</html>
