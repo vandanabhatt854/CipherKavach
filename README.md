@@ -11,7 +11,8 @@ CipherKavach/
 ├── app.py                  Flask routes, upload checks, and downloads
 ├── cipherkavach.py         Python command-line interface
 ├── cipherkavach_crypto.py  Shared AES-GCM file format and crypto functions
-├── requirements.txt        Python dependencies
+├── requirements.txt        Python dependencies, including Gunicorn
+├── render.yaml             Render web-service configuration
 ├── templates/
 │   └── index.html          Page structure
 └── static/
@@ -25,7 +26,7 @@ The browser submits the selected file and password to `/api/encrypt` or `/api/de
 
 New `.ckv` files use AES-256-GCM with a fresh random 16-byte salt and 12-byte nonce per file. PBKDF2-HMAC-SHA256 with 600,000 iterations derives the encryption key from the password. The versioned header is authenticated along with the ciphertext. GCM detects wrong passwords and changes to authenticated file data, but it cannot distinguish a wrong password from corruption; the app shows one general decryption error for both. Files using an unsupported format or version are rejected.
 
-CipherKavach does not save passwords and cannot recover them. Keep the password safe and retain the original file until you have checked the encrypted download. The application does not store file history, use a database, or upload to cloud storage. Do not expose the local development server to a public network.
+CipherKavach does not save passwords and cannot recover them. Keep the password safe and retain the original file until you have checked the encrypted download. The app does not use a database or intentionally retain uploaded files. When hosted, the file and password are sent to and processed by that hosting server; do not use a public deployment for sensitive files unless you trust the host and have reviewed its privacy and logging policies. Use HTTPS and do not expose Flask's built-in development server to a public network.
 
 The upload limit defaults to 50 MB per file and is enforced in the browser and on the server. To change it, set `CIPHERKAVACH_MAX_FILE_SIZE` to a byte count before starting the app; the browser limit uses the same configured value rendered by Flask.
 
@@ -53,6 +54,12 @@ python app.py
 
 Keep the terminal running, then open **http://127.0.0.1:5000** in your browser. Press `Ctrl+C` in the terminal to stop the server. The app does not deploy itself or listen on other devices.
 
+## Deploy to Render
+
+This repository includes a Render Blueprint in `render.yaml`. To deploy, sign in to Render, choose **New → Blueprint**, connect this GitHub repository, and apply the `cipherkavach` service. Render builds the app with `requirements.txt` and runs it with Gunicorn. The free instance may sleep when idle and can take time to start.
+
+The deployed app is public by default. HTTPS protects traffic in transit, but uploads and passwords are still processed by the hosting server. Only deploy for use with files and passwords you are comfortable sending to that server; check Render's current privacy, retention, and service-plan terms before sharing the URL.
+
 ## Use the CLI
 
 The CLI prompts for passwords without displaying them:
@@ -75,4 +82,3 @@ Run the built-in application checks from the activated environment:
 ```powershell
 python -m unittest discover -s tests -v
 ```
-
